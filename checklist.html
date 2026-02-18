@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<style>
+  :root{
+    --bg: rgba(8, 8, 10, 0.55);
+    --bg2: rgba(0, 0, 0, 0.35);
+    --orange: #ff7a18;
+    --orange2:#ffb000;
+    --ember: rgba(255, 122, 24, 0.35);
+    --text: rgba(255,255,255,0.92);
+    --muted: rgba(255,255,255,0.72);
+    --ok: #34ff9a;
+  }
+
+  body{
+    margin:0;
+    background: transparent;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: var(--text);
+  }
+
+  /* Panel container */
+  .panel{
+    width: 620px;
+    padding: 18px 18px 16px 18px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, var(--bg), var(--bg2));
+    border: 2px solid rgba(255,122,24,0.35);
+    box-shadow:
+      0 0 24px rgba(255,122,24,0.18),
+      0 0 60px rgba(255,122,24,0.10),
+      inset 0 0 18px rgba(255,122,24,0.06);
+    backdrop-filter: blur(6px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle ember overlay */
+  .panel::before{
+    content:"";
+    position:absolute;
+    inset:-40px;
+    background:
+      radial-gradient(circle at 20% 110%, rgba(255,122,24,0.35), transparent 45%),
+      radial-gradient(circle at 80% 120%, rgba(255,176,0,0.22), transparent 50%),
+      radial-gradient(circle at 60% -10%, rgba(255,122,24,0.18), transparent 40%);
+    filter: blur(10px);
+    opacity: 0.9;
+    pointer-events:none;
+  }
+
+  /* Header */
+  .header{
+    position: relative;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom: 10px;
+  }
+
+  .title{
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    font-size: 22px;
+    color: rgba(255,255,255,0.95);
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    text-transform: uppercase;
+  }
+
+  .badge{
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(0,0,0,0.85);
+    background: linear-gradient(90deg, var(--orange), var(--orange2));
+    padding: 6px 10px;
+    border-radius: 999px;
+    box-shadow: 0 0 18px rgba(255,122,24,0.25);
+  }
+
+  .subtitle{
+    position: relative;
+    margin-top: 2px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .divider{
+    position: relative;
+    height: 1px;
+    margin: 12px 0 12px 0;
+    background: linear-gradient(90deg, transparent, rgba(255,122,24,0.55), transparent);
+  }
+
+  /* Tasks */
+  .tasks{ position: relative; }
+
+  .task{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    margin: 8px 0;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,122,24,0.12);
+    box-shadow: inset 0 0 12px rgba(0,0,0,0.25);
+    font-size: 20px;
+    line-height: 1.2;
+  }
+
+  .box{
+    width: 30px;
+    text-align:center;
+    font-weight: 900;
+    color: rgba(255,255,255,0.9);
+    text-shadow: 0 0 10px rgba(255,122,24,0.20);
+    flex: 0 0 30px;
+  }
+
+  .label{
+    flex: 1;
+  }
+
+  .hint{
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    margin-left: 40px;
+    margin-top: 6px;
+  }
+
+  /* Completed state */
+  .completed{
+    border-color: rgba(52,255,154,0.25);
+    background: rgba(0,0,0,0.28);
+    box-shadow:
+      inset 0 0 14px rgba(52,255,154,0.10),
+      0 0 20px rgba(52,255,154,0.08);
+  }
+
+  .completed .box{
+    color: var(--ok);
+    text-shadow: 0 0 14px rgba(52,255,154,0.35);
+  }
+
+  .completed .label{
+    color: rgba(255,255,255,0.78);
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    text-decoration-color: rgba(255,122,24,0.45);
+  }
+
+  /* Optional: a tiny “ember flicker” animation on the panel glow */
+  @keyframes flicker{
+    0%, 100% { box-shadow: 0 0 24px rgba(255,122,24,0.18), 0 0 60px rgba(255,122,24,0.10), inset 0 0 18px rgba(255,122,24,0.06); }
+    50% { box-shadow: 0 0 30px rgba(255,122,24,0.22), 0 0 70px rgba(255,122,24,0.12), inset 0 0 20px rgba(255,122,24,0.08); }
+  }
+  .panel{ animation: flicker 2.8s ease-in-out infinite; }
+</style>
+</head>
+
+<body>
+  <div class="panel">
+    <div class="header">
+      <div>
+        <div class="title">🔥 Quest Checklist <span class="badge">ODDMEISTER</span></div>
+        <div class="subtitle">The impediment to action advances action. What stands in the way becomes the way.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="tasks">
+      <div id="task1" class="task" onclick="toggleTask('task1')">
+        <div class="box">☐</div>
+        <div class="label">Reach Level 40</div>
+      </div>
+
+      <div id="task2" class="task" onclick="toggleTask('task2')">
+        <div class="box">☐</div>
+        <div class="label">Godfrey Icon</div>
+      </div>
+
+      <div id="task3" class="task" onclick="toggleTask('task3')">
+        <div class="box">☐</div>
+        <div class="label">Upgrade Flask</div>
+      </div>
+
+      <div id="task4" class="task" onclick="toggleTask('task4')">
+        <div class="box">☐</div>
+        <div class="label">Moonveil Katana</div>
+      </div>
+
+    </div>
+  </div>
+
+
+<script>
+  function toggleTask(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const box = el.querySelector(".box");
+    const isDone = el.classList.contains("completed");
+
+    if (isDone) {
+      el.classList.remove("completed");
+      if (box) box.textContent = "☐";
+    } else {
+      el.classList.add("completed");
+      if (box) box.textContent = "☑";
+    }
+
+localStorage.setItem("checklist_" + id, el.classList.contains("completed") ? "1" : "0");
+
+  }
+
+  // Stream Deck triggers: open file with hash (#task1) to toggle once.
+  window.onload = function() {
+    if (window.location.hash) {
+      const id = window.location.hash.substring(1);
+      toggleTask(id);
+    }
+  }
+</script>
+</body>
+</html>
