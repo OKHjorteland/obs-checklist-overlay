@@ -305,6 +305,33 @@
     0%, 100% { box-shadow: 0 0 24px rgba(255,122,24,0.18), 0 0 60px rgba(255,122,24,0.10), inset 0 0 18px rgba(255,122,24,0.06); }
     50% { box-shadow: 0 0 30px rgba(255,122,24,0.22), 0 0 70px rgba(255,122,24,0.12), inset 0 0 20px rgba(255,122,24,0.08); }
   }
+
+  .logo{
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(255,122,24,0.35));
+  animation: logoFloat 3.5s ease-in-out infinite;
+}
+
+@keyframes logoFloat{
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Logo celebration */
+@keyframes logoCelebrate{
+  0%   { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 8px rgba(255,122,24,0.25)); }
+  25%  { transform: scale(1.18) rotate(-6deg); filter: drop-shadow(0 0 18px rgba(255,176,0,0.45)); }
+  55%  { transform: scale(1.28) rotate(6deg); filter: drop-shadow(0 0 26px rgba(52,255,154,0.35)); }
+  100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 10px rgba(255,122,24,0.35)); }
+}
+
+.logo.celebrate{
+  animation: logoCelebrate 900ms cubic-bezier(.2,.9,.2,1) 1;
+}
+
+
 </style>
 </head>
 
@@ -314,7 +341,13 @@
 
     <div class="header">
       <div>
-        <div class="title">🔥 Quest Checklist <span class="badge">ODDMEISTER</span></div>
+        <div class="title">
+  <img id="logo" src="Smiley.png" class="logo" alt="Oddmeister Logo">
+
+  Quest Checklist
+  <span class="badge">ODDMEISTER</span>
+</div>
+
         <div class="subtitle">The impediment to action advances action. What stands in the way becomes the way.</div>
       </div>
     </div>
@@ -387,6 +420,16 @@
     const doneCount = tasks.filter(el => el.classList.contains("completed")).length;
     const total = tasks.length || 1;
     const pct = Math.round((doneCount / total) * 100);
+    // Logo rules:
+    // - Always happy at 100%
+    // - Otherwise: don't override a recent "temp happy" celebration
+    if (pct === 100) {
+   setLogoHappy(false);
+} else {
+  if (Date.now() > logoHoldUntil) setLogoNormal();
+}
+
+
 
     const fill = document.getElementById("progressFill");
     const pctEl = document.getElementById("progressPct");
@@ -449,6 +492,49 @@
     }
   }
 
+  const LOGO_NORMAL = "Smiley.png";
+const LOGO_HAPPY  = "Smiley_Happy.png";
+let logoTimer = null;
+let logoHoldUntil = 0;
+
+
+function setLogoHappy(temp = false) {
+  if (temp) logoHoldUntil = Date.now() + 950;
+  const logo = document.getElementById("logo");
+  if (!logo) return;
+
+  // swap to happy
+  logo.src = LOGO_HAPPY;
+
+  // restart animation reliably
+  logo.classList.remove("celebrate");
+  void logo.offsetWidth;
+  logo.classList.add("celebrate");
+
+  // if temporary, revert unless we’re at 100%
+  if (temp) {
+    if (logoTimer) clearTimeout(logoTimer);
+    logoTimer = setTimeout(() => {
+      const pct = getProgressPct();
+      if (pct < 100) logo.src = LOGO_NORMAL;
+    }, 950);
+  }
+}
+
+function setLogoNormal() {
+  const logo = document.getElementById("logo");
+  if (!logo) return;
+  logo.src = LOGO_NORMAL;
+}
+
+function getProgressPct() {
+  const tasks = getTasks();
+  const doneCount = tasks.filter(el => el.classList.contains("completed")).length;
+  const total = tasks.length || 1;
+  return Math.round((doneCount / total) * 100);
+}
+
+
   // generic burst at screen coords (used for 100% celebration)
   function burstParticlesAt(clientX, clientY, intensity = 18) {
     const panel = document.getElementById("panel");
@@ -499,6 +585,7 @@
     if (nextDone) {
       addTempClass(taskEl, "pulse", 420);
       burstAroundCheckbox(taskEl, 14);
+      setLogoHappy(true);
     }
 
     setTaskState(taskEl, nextDone);
